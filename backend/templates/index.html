@@ -1,0 +1,101 @@
+<html>
+    <head>
+        <title>User database service</title>
+    </head>
+    <body>
+        <h1>How to run container:</h1>
+        <p>
+            <pre>
+            Download from Google Disk users_db-image.zip
+
+            !!!! if not working as is - install Docker Desktop !!!!
+            install Docker Desktop on Windows (before enable Hyper V in add/remove Windows components,
+             Virtual Machine Platform and Windows Subsystem for Linux -
+             https://stackoverflow.com/questions/66267529/docker-desktop-3-1-0-installation-issue-access-is-denied
+             )
+            run docker desktop from start menu
+            !!!!!
+
+
+            !!!!!!!!!!!!! Use container !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            On server load and run:
+            docker load -i users_db-image.zip
+
+            !!!! her change path from "e:\" to where datadase file should be stored
+            docker run -d -p 8000:5000 -v e:\:/backend/db_media --name users_db-service users_db-service:v0.1.0
+
+
+            Stop service:
+            docker stop users_db-service
+
+            Remove service:
+            docker rm -f users_db-service
+            docker rmi --force users_db-service:v0.1.0
+            </pre>
+        </p>
+        <h1>How to use:</h1>
+        <h2>Load users names:</h2>
+        <p>
+            <pre>
+            response = requests.post('http://127.0.0.1:8000/api/get_names', data={})
+            print(json.loads(response.text)['users'])
+            </pre>
+        </p>
+        <h2>Get user's card ID:</h2>
+        <p>
+            <pre>
+            response = requests.post('http://127.0.0.1:8000/api/get_card', data={'name': 'new_name1'})
+            print(json.loads(response.text)['card_id'])
+            </pre>
+        </p>
+        <h2>Add NEW user:</h2>
+        <p>
+            <pre>
+            img = cv2.imread('test.jpg')
+            _, jpg = cv2.imencode('.jpg', img)
+            json_img = utils.jpeg2str(jpg.tobytes())
+
+            enc = face_recognition.face_encodings(img)[0]
+            json_enc = utils.encoding2str(enc.tobytes())
+            response = requests.post('http://127.0.0.1:8000/api/add_new', data={'image': json_img, 'name': 'new_name1',
+                                                                    'card_id': '00000'})
+            print(json.loads(response.text))
+            </pre>
+        </p>
+        <h2>Add photo for existing user:</h2>
+        <p>
+            <pre>
+            for i in range(10):
+                response = requests.post('http://127.0.0.1:8000/api/add_photo', data={'image': json_img, 'name': 'new_name1',
+                                                                                      'encoding': json_enc})
+                print(json.loads(response.text))
+            </pre>
+        </p>
+        <h2>Train KNN model in database:</h2>
+        <p>
+            <pre>
+            response = requests.post('http://127.0.0.1:8000/api/train_model', data={})
+            print(json.loads(response.text))
+            </pre>
+        </p>
+        <h2>Get and use KNN model from database:</h2>
+        <p>
+            <pre>
+            response = requests.post('http://127.0.0.1:8000/api/get_model', data={})
+            model = utils.str2model(json.loads(response.text)['model'])
+            print(model.predict([enc]))
+            </pre>
+        </p>
+        <h2>Get user face photo:</h2>
+        <p>
+            <pre>
+            response = requests.post('http://127.0.0.1:8000/api/get_face', data={'name': 'new_name1'})
+            face = utils.str2jpeg(json.loads(response.text)['face'])
+            face_img = cv2.imdecode(face, cv2.IMREAD_COLOR)
+            cv2.imshow('a', face_img)
+            while cv2.waitKey(1) != 27:
+                continue
+            </pre>
+        </p>
+    </body>
+</html>
