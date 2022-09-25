@@ -175,7 +175,7 @@ class UsersBase:
                         train_x.append(enc)
                         train_y.append(user_name)
                 if len(train_x) > 0:
-                    knn_clf = neighbors.KNeighborsClassifier(n_neighbors=5, algorithm='ball_tree',
+                    knn_clf = neighbors.KNeighborsClassifier(n_neighbors=1, algorithm='ball_tree',
                                                              weights='distance')
                     knn_clf.fit(train_x, train_y)
                     self.cursor = self.base_connection.cursor()
