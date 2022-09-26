@@ -195,7 +195,10 @@ class UsersBase:
             sql_req = 'SELECT knn_model, MAX(date) FROM models;'
             self.cursor.execute(sql_req)
             response = self.cursor.fetchone()
-            knn_model = pickle.loads(response[0])
+            try:
+                knn_model = pickle.loads(response[0])
+            except Exception:
+                knn_model = None
             self.cursor.close()
             return knn_model
         except sqlite3.Error as error:
